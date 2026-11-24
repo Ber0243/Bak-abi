@@ -1,0 +1,57 @@
+name: iOS imzasız IPA
+on:
+  workflow_dispatch:
+jobs:
+  zip-ac:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Zip varsa aç
+        run: |
+          Z="$(ls -t ./*.zip 2>/dev/null | head -1)"
+          if [ -z "$Z" ]; then echo "Zip yok, açma atlandı"; exit 0; fi
+          T="$(mktemp -d)"
+          unzip -q "$Z" -d "$T"
+          rm -rf "$T/__MACOSX"
+          SRC="$T"
+          if [ "$(ls -A "$T" | wc -l)" -eq 1 ] && [ -d "$T/$(ls -A "$T")" ]; then
+            SRC="$T/$(ls -A "$T")"
+          fi
+          rm -rf "$SRC/.github"
+          cp -R "$SRC"/. .
+          git rm -q -f "$Z"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Zip açıldı"
+          git push origin HEAD
+  ipa:
+    needs: zip-ac
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - name: ios-kabuk klasörü depoda mı (zip açıldı mı)
+        run: test -d ios-kabuk
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Derle
+        run: bash ios-kabuk/scripts/ci-build.sh
+      - name: IPA yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: TURKAI-imzasiz-ipa
+          path: ios-kabuk/build/TURKAI-imzasiz.ipa
+          if-no-files-found: error
+      - name: Derleme kaydını yükle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: derleme-kayitlari
+          path: ios-kabuk/build/log.txt
+          if-no-files-found: ignore
