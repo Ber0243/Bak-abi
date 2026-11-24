@@ -1,0 +1,27 @@
+# Render (ücretsiz plan) için hazır tarif: render.com → New → Blueprint → bu depoyu seç.
+services:
+  - type: web
+    name: turkai
+    runtime: node
+    plan: free
+    buildCommand: npm --prefix web install --include=dev && npm --prefix web run build && npm --prefix server install --include=dev
+    startCommand: npm --prefix server start
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: ABACUS_API_KEY
+        sync: false
+      - key: ACCESS_TOKEN
+        generateValue: true
+      - key: USER_NAME
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: YOUTUBE_API_KEY
+        sync: false
+      - key: WEATHER_CITY
+        value: İstanbul
+      - key: WEATHER_LAT
+        value: "41.01"
+      - key: WEATHER_LON
+        value: "28.98"

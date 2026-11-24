@@ -1,0 +1,14 @@
+{
+  "appId": "com.turkai.asistan",
+  "appName": "TÜRKAİ",
+  "webDir": "www",
+  "backgroundColor": "#02070d",
+  "server": {
+    "allowNavigation": ["*"]
+  },
+  "ios": {
+    "contentInset": "never",
+    "allowsLinkPreview": false,
+    "backgroundColor": "#02070d"
+  }
+}
